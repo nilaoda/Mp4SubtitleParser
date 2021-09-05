@@ -212,7 +212,7 @@ namespace Mp4VttParser
         {
             string subfix = time.ToString("#.000").Split('.').Last();
             TimeSpan ts = new TimeSpan(0, 0, (int)time);
-            string str = (ts.Hours.ToString("00") == "00" ? "" : ts.Hours.ToString("00") + ":") + ts.Minutes.ToString("00") + ":" + ts.Seconds.ToString("00") + "." + subfix;
+            string str = ts.Hours.ToString("00") + ":" + ts.Minutes.ToString("00") + ":" + ts.Seconds.ToString("00") + "." + subfix;
             return str;
         }
     }
