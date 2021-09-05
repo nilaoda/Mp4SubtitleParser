@@ -10,7 +10,7 @@ namespace Mp4VttParser
     {
         static void Main(string[] args)
         {
-            var data = File.ReadAllBytes(@"dashvtt_subtitle_WVTT_zh-TW\init.mp4");
+            var data = File.ReadAllBytes(@"samples\init.mp4");
             uint timescale = 0;
             bool sawWVTT = false;
 
@@ -44,11 +44,11 @@ namespace Mp4VttParser
 
             List<Cue> cues = new List<Cue>();
 
-            int i = -1;
+            int i = 0;
             ttttttttttttt:
             i++;
             Console.Title = i.ToString();
-            if (i > 150)
+            if (i > 423)
             {
                 foreach (var cue in cues)
                 {
@@ -57,7 +57,7 @@ namespace Mp4VttParser
                 }
                 Environment.Exit(0);
             }
-            var dataSeg = File.ReadAllBytes(@"dashvtt_subtitle_WVTT_zh-TW\" + i.ToString("0000") + ".mp4");
+            var dataSeg = File.ReadAllBytes(@"samples\segment-1." + i.ToString("0000") + ".m4s");
 
             bool sawTFDT = false;
             bool sawTRUN = false;
