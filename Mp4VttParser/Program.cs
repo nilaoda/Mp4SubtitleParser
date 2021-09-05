@@ -10,7 +10,7 @@ namespace Mp4VttParser
     {
         static void Main(string[] args)
         {
-            var data = File.ReadAllBytes(@"D:\JSProjects\shaka-player-master\test\test\assets\vtt-init.mp4");
+            var data = File.ReadAllBytes(@"dashvtt_subtitle_WVTT_zh-TW\init.mp4");
             uint timescale = 0;
             bool sawWVTT = false;
 
@@ -42,12 +42,22 @@ namespace Mp4VttParser
 
             Console.WriteLine($"timescale: {timescale}");
 
+            List<Cue> cues = new List<Cue>();
+
             int i = -1;
             ttttttttttttt:
             i++;
             Console.Title = i.ToString();
-            if (i > 0) Environment.Exit(0);
-            var dataSeg = File.ReadAllBytes(@"D:\JSProjects\shaka-player-master\test\test\assets\vtt-segment-settings.mp4");
+            if (i > 150)
+            {
+                foreach (var cue in cues)
+                {
+                    Console.WriteLine($"{ConvertTime(cue.StartTime)} --> {ConvertTime(cue.EndTime)} {(string.IsNullOrEmpty(cue.Settings) ? "position:50% line:94% align:middle" : cue.Settings)}\r\n" +
+                        $"{cue.Payload}\r\n");
+                }
+                Environment.Exit(0);
+            }
+            var dataSeg = File.ReadAllBytes(@"dashvtt_subtitle_WVTT_zh-TW\" + i.ToString("0000") + ".mp4");
 
             bool sawTFDT = false;
             bool sawTRUN = false;
@@ -56,7 +66,6 @@ namespace Mp4VttParser
             ulong baseTime = 0;
             ulong defaultDuration = 0;
             List<Sample> presentations = new List<Sample>();
-            List<Cue> cues = new List<Cue>();
 
 
             //parse media
@@ -151,7 +160,16 @@ namespace Mp4VttParser
                                 payload,
                                 0 + (double)startTime / timescale,
                                 0 + (double)currentTime / timescale);
-                            cues.Add(cue);
+                            //Check if same subtitle has been splitted
+                            var index = cues.FindLastIndex(s => s.EndTime == cue.StartTime && s.Settings == cue.Settings && s.Payload == cue.Payload);
+                            if (index != -1)
+                            {
+                                cues[index].EndTime = cue.EndTime;
+                            }
+                            else
+                            {
+                                cues.Add(cue);
+                            }
                         }
                     }
                     else
@@ -170,12 +188,6 @@ namespace Mp4VttParser
                 {
                     //throw new Exception("MDAT which contain VTT cues and non-VTT data are not currently supported!");
                 }
-            }
-
-            foreach (var cue in cues)
-            {
-                Console.WriteLine($"{ConvertTime(cue.StartTime)} --> {ConvertTime(cue.EndTime)} {(string.IsNullOrEmpty(cue.Settings) ? "position:50% line:94% align:middle" : cue.Settings)}\r\n" +
-                    $"{cue.Payload}\r\n");
             }
 
             goto ttttttttttttt;
