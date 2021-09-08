@@ -2,9 +2,15 @@
 
 Program to extract embed wvtt/ttml subtitle in mp4.
 
-Ttranslated from shaka-player project.
+Translated from shaka-player project.
 
-python prj: https://github.com/xhlove/dash-subtitle-extractor
+python/js prj: https://github.com/xhlove/dash-subtitle-extractor
+
+# how to split single-file
+
+```
+"C:\Bento4-SDK-1-6-0-639.x86_64-microsoft-win32\bin\mp4split.exe" single-file.mp4
+```
 
 # useage
 ```
@@ -45,9 +51,4 @@ For ttml:
 
 you got `output.ttml` and `output.srt`
 
-# how to split single-file
-
-```
-"C:\Bento4-SDK-1-6-0-639.x86_64-microsoft-win32\bin\mp4split.exe" single-file.mp4
-```
 
