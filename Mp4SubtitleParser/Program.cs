@@ -24,7 +24,7 @@ namespace Mp4SubtitleParser
                 if (args.Length == 0)
                 {
                     Error("arg missing...");
-                    Console.WriteLine("Mp4SubtitleParser <segments dir> <segments search pattern>");
+                    Console.WriteLine("Mp4SubtitleParser <segments dir> <segments search pattern> [output name] [--segTimeMs=SEGMENT_DUR_IN_MS]");
                     return;
                 }
 
@@ -37,6 +37,11 @@ namespace Mp4SubtitleParser
                 var search = args[1];
                 if (string.IsNullOrEmpty(search))
                     throw new Exception("Search pattern should not be empty");
+
+                var outName = "output";
+                if (args.Length > 2 && !args[2].StartsWith("--segTimeMs=")) 
+                    outName = args[2];
+
                 var items = Directory.EnumerateFiles(dir, search);
 
                 if (!File.Exists($"{dir}\\init.mp4"))
@@ -44,16 +49,28 @@ namespace Mp4SubtitleParser
 
                 var data = File.ReadAllBytes($"{dir}\\init.mp4");
 
+                //offset for per segment ( startTime + index * segTimeMs)
+                long segTimeMs = 0;
+                if (Environment.GetCommandLineArgs().Any(a => a.StartsWith("--segTimeMs="))) 
+                {
+                    try
+                    {
+                        var arg = Environment.GetCommandLineArgs().First(a => a.StartsWith("--segTimeMs=")).Replace("--segTimeMs=", "");
+                        segTimeMs = Convert.ToInt64(arg);
+                    }
+                    catch (Exception) { }
+                }
+
                 //vtt
                 var tmp = VTTAction.CheckInit(data);
                 if (tmp.Item1)
                 {
-                    VTTAction.DoWork(data, items, args, tmp.Item2);
+                    VTTAction.DoWork(items, tmp.Item2, outName);
                 }
                 //ttml
                 else if (TTMLAction.CheckInit(data))
                 {
-                    TTMLAction.DoWork(data, items, args);
+                    TTMLAction.DoWork(items, outName, segTimeMs);
                 }
                 else
                 {

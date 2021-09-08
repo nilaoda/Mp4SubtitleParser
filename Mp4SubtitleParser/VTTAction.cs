@@ -37,7 +37,7 @@ namespace Mp4SubtitleParser
             return (sawWVTT, timescale);
         }
 
-        public static void DoWork(byte[] data, IEnumerable<string> items, string[] args, uint timescale)
+        public static void DoWork(IEnumerable<string> items, uint timescale, string outName)
         {
             if (timescale == 0)
                 throw new Exception("Missing timescale for VTT content!");
@@ -199,9 +199,6 @@ namespace Mp4SubtitleParser
                     //    $"{cue.Payload}\r\n");
                 }
 
-                var outName = "output";
-                if (args.Length > 2)
-                    outName = args[2];
                 File.WriteAllText(outName + ".vtt", sb.ToString(), new UTF8Encoding(false));
                 Console.WriteLine("Done: " + Path.GetFullPath(outName + ".vtt"));
             }

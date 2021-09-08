@@ -39,10 +39,51 @@ namespace Mp4SubtitleParser
             return sawSTPP;
         }
 
-        public static void DoWork(byte[] data, IEnumerable<string> items, string[] args)
+        private static string ShiftTime(string xmlSrc, long segTimeMs, int index)
+        {
+            string Add(string xmlTime)
+            {
+                var dt = DateTime.ParseExact(xmlTime, "HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
+                var ts = TimeSpan.FromMilliseconds(dt.TimeOfDay.TotalMilliseconds + segTimeMs * index);
+                return string.Format("{0:00}:{1:00}:{2:00}.{3:000}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds);
+            }
+
+            if (!xmlSrc.Contains("<?xml") || !xmlSrc.Contains("<head>")) return xmlSrc;
+            var xmlDoc = new XmlDocument();
+            XmlNamespaceManager nsMgr = null;
+            xmlDoc.LoadXml(xmlSrc);
+            var ttNode = xmlDoc.LastChild;
+            if (nsMgr == null)
+            {
+                var ns = ((XmlElement)ttNode).GetAttribute("xmlns");
+                nsMgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                nsMgr.AddNamespace("ns", ns);
+            }
+
+            var bodyNode = ttNode.SelectSingleNode("ns:body", nsMgr);
+            if (bodyNode == null)
+                return xmlSrc;
+
+            var _div = bodyNode.SelectSingleNode("ns:div", nsMgr);
+            //Parse <p> label
+            foreach (XmlElement _p in _div.SelectNodes("ns:p", nsMgr))
+            {
+                var _begin = _p.GetAttribute("begin");
+                var _end = _p.GetAttribute("end");
+                _p.SetAttribute("begin", Add(_begin));
+                _p.SetAttribute("end", Add(_end));
+                //Console.WriteLine($"{_begin} {_p.GetAttribute("begin")}");
+                //Console.WriteLine($"{_end} {_p.GetAttribute("begin")}");
+            }
+
+            return xmlDoc.OuterXml;
+        }
+
+        public static void DoWork(IEnumerable<string> items, string outName, long segTimeMs)
         {
             //read ttmls
             List<string> xmls = new List<string>();
+            int segIndex = 0;
             foreach (var item in items)
             {
                 if (Path.GetFileName(item) == "init.mp4")
@@ -57,9 +98,17 @@ namespace Mp4SubtitleParser
                         sawMDAT = true;
                         // Join this to any previous payload, in case the mp4 has multiple
                         // mdats.
-                        xmls.Add(Encoding.UTF8.GetString(data));
+                        if (segTimeMs != 0)
+                        {
+                            xmls.Add(ShiftTime(Encoding.UTF8.GetString(data), segTimeMs, segIndex));
+                        }
+                        else
+                        {
+                            xmls.Add(Encoding.UTF8.GetString(data));
+                        }
                     }))
                     .Parse(dataSeg,/* partialOkay= */ false);
+                segIndex++;
             }
 
 
@@ -161,9 +210,6 @@ namespace Mp4SubtitleParser
             xml.AppendLine("</tt>");
 
 
-            var outName = "output";
-            if (args.Length > 2)
-                outName = args[2];
             File.WriteAllText(outName + ".ttml", xml.ToString(), new UTF8Encoding(false));
             Console.WriteLine("Done: " + Path.GetFullPath(outName + ".ttml"));
 
