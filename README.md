@@ -14,10 +14,10 @@ python/js prj: https://github.com/xhlove/dash-subtitle-extractor
 
 # useage
 ```
-Mp4SubtitleParser <segments dir> <segments search pattern> [OUTNAME]
+Mp4SubtitleParser <segments dir> <segments search pattern> [output name] [--segTimeMs=SEGMENT_DUR_IN_MS]
 ```
 
-For wvtt:
+# wvtt example
 ```
 │ Mp4SubtitleParser.exe
 └─samples-vtt
@@ -29,13 +29,13 @@ For wvtt:
         ...
 ```
 
-`Mp4SubtitleParser.exe samples-vtt *.mp4`
+```
+Mp4SubtitleParser.exe samples-vtt *.mp4
+```
 
 you got `output.vtt`
 
----
-
-For ttml:
+# TTML example
 ```
 │ Mp4SubtitleParser.exe
 └─samples-ttml
@@ -47,8 +47,26 @@ For ttml:
         ...
 ```
 
-`Mp4SubtitleParser.exe samples-ttmls *.mp4`
+```
+Mp4SubtitleParser.exe samples-ttmls *.mp4
+```
 
 you got `output.ttml` and `output.srt`
 
 
+# time offset for TTML
+
+in that case, every segment's basetime is `00:00:00.000`...
+
+[sample](https://github.com/nilaoda/Mp4SubtitleParser/blob/main/samples/samples-ttml(no%20init%2C%20need%20offset).zip)
+
+(put any ttml `init.mp4` to the folder, so program can recognize ttml header)
+
+```
+Mp4SubtitleParser.exe "samples-ttml(no init, need offset)" *.mp4 --segTimeMs=60000
+```
+
+segment-01 will add offset `+0s`  
+segment-02 will add offset `+60s`  
+segment-03 will add offset `+120s`  
+...
