@@ -101,14 +101,25 @@ namespace Mp4SubtitleParser
                         End = _end,
                         Region = _region
                     };
-                    var _spans = _p.SelectNodes("ns:span", nsMgr);
+                    var _spans = _p.ChildNodes;
                     //Collect <span>
-                    foreach (XmlElement _span in _spans)
+                    foreach (XmlNode _node in _spans)
                     {
-                        if (string.IsNullOrEmpty(_span.InnerText))
-                            continue;
-                        sub.Contents.Add(_span);
-                        sub.ContentStrings.Add(_span.OuterXml);
+                        if (_node.NodeType == XmlNodeType.Element)
+                        {
+                            var _span = (XmlElement)_node;
+                            if (string.IsNullOrEmpty(_span.InnerText))
+                                continue;
+                            sub.Contents.Add(_span);
+                            sub.ContentStrings.Add(_span.OuterXml);
+                        }
+                        else if (_node.NodeType == XmlNodeType.Text)
+                        {
+                            var _span = new XmlDocument().CreateElement("span");
+                            _span.InnerText = _node.Value;
+                            sub.Contents.Add(_span);
+                            sub.ContentStrings.Add(_span.OuterXml);
+                        }
                     }
                     //Check if one <p> has been splitted
                     var index = finalSubs.FindLastIndex(s => s.End == _begin && s.Region == _region && s.ContentStrings.SequenceEqual(sub.ContentStrings));

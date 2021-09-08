@@ -50,11 +50,14 @@ namespace Mp4SubtitleParser
                 {
                     VTTAction.DoWork(data, items, args, tmp.Item2);
                 }
-                
                 //ttml
-                if(TTMLAction.CheckInit(data))
+                else if (TTMLAction.CheckInit(data))
                 {
                     TTMLAction.DoWork(data, items, args);
+                }
+                else
+                {
+                    Console.WriteLine("Can not parse wvtt/ttml subtitle from your init.mp4!!");
                 }
             }
             catch (Exception ex)
