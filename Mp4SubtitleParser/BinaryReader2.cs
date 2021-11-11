@@ -30,28 +30,32 @@ namespace Mp4SubtitleParser
         public override int ReadInt32()
         {
             var data = base.ReadBytes(4);
-            Array.Reverse(data);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(csrcArr);
             return BitConverter.ToInt32(data, 0);
         }
 
         public override short ReadInt16()
         {
             var data = base.ReadBytes(2);
-            Array.Reverse(data);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(csrcArr);
             return BitConverter.ToInt16(data, 0);
         }
 
         public override long ReadInt64()
         {
             var data = base.ReadBytes(8);
-            Array.Reverse(data);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(csrcArr);
             return BitConverter.ToInt64(data, 0);
         }
 
         public override uint ReadUInt32()
         {
             var data = base.ReadBytes(4);
-            Array.Reverse(data);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(csrcArr);
             return BitConverter.ToUInt32(data, 0);
         }
 
