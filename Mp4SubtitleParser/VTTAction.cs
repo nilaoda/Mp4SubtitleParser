@@ -154,14 +154,17 @@ namespace Mp4SubtitleParser
                                     0 + (double)startTime / timescale,
                                     0 + (double)currentTime / timescale);
                                 //Check if same subtitle has been splitted
-                                var index = cues.FindLastIndex(s => s.EndTime == cue.StartTime && s.Settings == cue.Settings && s.Payload == cue.Payload);
-                                if (index != -1)
+                                if (cue != null)
                                 {
-                                    cues[index].EndTime = cue.EndTime;
-                                }
-                                else
-                                {
-                                    cues.Add(cue);
+                                    var index = cues.FindLastIndex(s => s.EndTime == cue.StartTime && s.Settings == cue.Settings && s.Payload == cue.Payload);
+                                    if (index != -1)
+                                    {
+                                        cues[index].EndTime = cue.EndTime;
+                                    }
+                                    else
+                                    {
+                                        cues.Add(cue);
+                                    }
                                 }
                             }
                         }
