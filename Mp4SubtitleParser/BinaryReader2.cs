@@ -31,7 +31,7 @@ namespace Mp4SubtitleParser
         {
             var data = base.ReadBytes(4);
             if (BitConverter.IsLittleEndian)
-                Array.Reverse(csrcArr);
+                Array.Reverse(data);
             return BitConverter.ToInt32(data, 0);
         }
 
@@ -39,7 +39,7 @@ namespace Mp4SubtitleParser
         {
             var data = base.ReadBytes(2);
             if (BitConverter.IsLittleEndian)
-                Array.Reverse(csrcArr);
+                Array.Reverse(data);
             return BitConverter.ToInt16(data, 0);
         }
 
@@ -47,7 +47,7 @@ namespace Mp4SubtitleParser
         {
             var data = base.ReadBytes(8);
             if (BitConverter.IsLittleEndian)
-                Array.Reverse(csrcArr);
+                Array.Reverse(data);
             return BitConverter.ToInt64(data, 0);
         }
 
@@ -55,7 +55,7 @@ namespace Mp4SubtitleParser
         {
             var data = base.ReadBytes(4);
             if (BitConverter.IsLittleEndian)
-                Array.Reverse(csrcArr);
+                Array.Reverse(data);
             return BitConverter.ToUInt32(data, 0);
         }
 
