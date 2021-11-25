@@ -12,7 +12,7 @@ python/js prj: https://github.com/xhlove/dash-subtitle-extractor
 "C:\Bento4-SDK-1-6-0-639.x86_64-microsoft-win32\bin\mp4split.exe" single-file.mp4
 ```
 
-# useage
+# usage
 ```
 Mp4SubtitleParser <segments dir> <segments search pattern> [output name] [--segTimeMs=SEGMENT_DUR_IN_MS]
 ```
