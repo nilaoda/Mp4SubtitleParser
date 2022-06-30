@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -117,12 +118,22 @@ namespace Mp4SubtitleParser
             var finalSubs = new List<SubEntity>();
             XmlNode headNode = null;
             XmlNamespaceManager nsMgr = null;
+            var regex = new Regex(">(.*?)<\\/p>");
             foreach (var item in xmls)
             {
                 var xmlContent = item;
-                if (!xmlContent.Contains("<?xml") || !xmlContent.Contains("<head>")) continue;
+                if (!xmlContent.Contains("<tt")) continue;
 
-                xmlDoc.LoadXml(xmlContent);
+                //fix non-standard xml 
+                var xmlContentFix = xmlContent;
+                if(regex.IsMatch(xmlContent))
+                {
+                    foreach (Match m in regex.Matches(xmlContentFix))
+                    {
+                        xmlContentFix = xmlContentFix.Replace(m.Groups[1].Value, System.Web.HttpUtility.HtmlEncode(m.Groups[1].Value));
+                    }
+                }
+                xmlDoc.LoadXml(xmlContentFix);
                 var ttNode = xmlDoc.LastChild;
                 if (nsMgr == null)
                 {
