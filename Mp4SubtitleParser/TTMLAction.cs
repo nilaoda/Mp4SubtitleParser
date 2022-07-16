@@ -149,7 +149,7 @@ namespace Mp4SubtitleParser
             var finalSubs = new List<SubEntity>();
             XmlNode headNode = null;
             XmlNamespaceManager nsMgr = null;
-            var regex = new Regex(">(.*?)<\\/p>");
+            var regex = new Regex(">(.+?)<\\/p>");
             foreach (var item in xmls)
             {
                 var xmlContent = item;
@@ -161,7 +161,8 @@ namespace Mp4SubtitleParser
                 {
                     foreach (Match m in regex.Matches(xmlContentFix))
                     {
-                        xmlContentFix = xmlContentFix.Replace(m.Groups[1].Value, System.Web.HttpUtility.HtmlEncode(m.Groups[1].Value));
+                        if(!m.Groups[1].Value.StartsWith("<span"))
+                            xmlContentFix = xmlContentFix.Replace(m.Groups[1].Value, System.Web.HttpUtility.HtmlEncode(m.Groups[1].Value));
                     }
                 }
                 xmlDoc.LoadXml(xmlContentFix);
