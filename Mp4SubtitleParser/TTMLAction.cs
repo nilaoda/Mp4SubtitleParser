@@ -16,6 +16,20 @@ namespace Mp4SubtitleParser
         public string Region { get; set; }
         public List<XmlElement> Contents { get; set; } = new List<XmlElement>();
         public List<string> ContentStrings { get; set; } = new List<string>();
+
+        public override bool Equals(object? obj)
+        {
+            return obj is SubEntity entity &&
+                   Begin == entity.Begin &&
+                   End == entity.End &&
+                   Region == entity.Region &&
+                   ContentStrings.SequenceEqual(entity.ContentStrings);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Begin, End, Region, ContentStrings);
+        }
     }
 
     class TTMLAction
@@ -78,6 +92,23 @@ namespace Mp4SubtitleParser
             }
 
             return xmlDoc.OuterXml;
+        }
+
+        private static string GetTextFromElement(XmlElement node)
+        {
+            var sb = new StringBuilder();
+            foreach (XmlNode item in node.ChildNodes)
+            {
+                if (item.NodeType == XmlNodeType.Text)
+                {
+                    sb.Append(item.InnerText.Trim());
+                }
+                else if (item.NodeType == XmlNodeType.Element && item.Name == "br")
+                {
+                    sb.AppendLine();
+                }
+            }
+            return sb.ToString();
         }
 
         public static void DoWork(IEnumerable<string> items, string outName, long segTimeMs)
@@ -189,7 +220,7 @@ namespace Mp4SubtitleParser
                         //Extend <p> duration
                         if (index != -1)
                             finalSubs[index].End = sub.End;
-                        else
+                        else if (!finalSubs.Contains(sub))
                             finalSubs.Add(sub);
                     }
                 }
@@ -236,16 +267,16 @@ namespace Mp4SubtitleParser
                     if (dic.ContainsKey(key))
                     {
                         if (item.GetAttribute("tts:fontStyle") == "italic" || item.GetAttribute("tts:fontStyle") == "oblique")
-                            dic[key] = $"{dic[key]}\r\n<i>{item.InnerText.Trim()}</i>";
+                            dic[key] = $"{dic[key]}\r\n<i>{GetTextFromElement(item)}</i>";
                         else
-                            dic[key] = $"{dic[key]}\r\n{item.InnerText.Trim()}";
+                            dic[key] = $"{dic[key]}\r\n{GetTextFromElement(item)}";
                     }
                     else
                     {
                         if (item.GetAttribute("tts:fontStyle") == "italic" || item.GetAttribute("tts:fontStyle") == "oblique")
-                            dic.Add(key, $"<i>{item.InnerText.Trim()}</i>");
+                            dic.Add(key, $"<i>{GetTextFromElement(item)}</i>");
                         else
-                            dic.Add(key, item.InnerText.Trim());
+                            dic.Add(key, GetTextFromElement(item));
                     }
                 }
             }
