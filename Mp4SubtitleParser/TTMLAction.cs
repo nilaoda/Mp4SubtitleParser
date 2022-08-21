@@ -111,6 +111,13 @@ namespace Mp4SubtitleParser
             return sb.ToString();
         }
 
+        public static List<string> SplitMultipleRootElements(string xml)
+        {
+            var regex = new Regex("\\<tt[\\s\\S]*?\\<\\/tt\\>");
+            if (!regex.IsMatch(xml)) return new List<string>();
+            return regex.Matches(xml).Select(m => m.Value).ToList();
+        }
+
         public static void DoWork(IEnumerable<string> items, string outName, long segTimeMs)
         {
             //read ttmls
@@ -132,11 +139,19 @@ namespace Mp4SubtitleParser
                         // mdats.
                         if (segTimeMs != 0)
                         {
-                            xmls.Add(ShiftTime(Encoding.UTF8.GetString(data), segTimeMs, segIndex));
+                            var datas = SplitMultipleRootElements(Encoding.UTF8.GetString(data));
+                            foreach (var item in datas)
+                            {
+                                xmls.Add(ShiftTime(item, segTimeMs, segIndex));
+                            }
                         }
                         else
                         {
-                            xmls.Add(Encoding.UTF8.GetString(data));
+                            var datas = SplitMultipleRootElements(Encoding.UTF8.GetString(data));
+                            foreach (var item in datas)
+                            {
+                                xmls.Add(item);
+                            }
                         }
                     }))
                     .Parse(dataSeg,/* partialOkay= */ false);
