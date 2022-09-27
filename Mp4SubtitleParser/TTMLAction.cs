@@ -202,6 +202,9 @@ namespace Mp4SubtitleParser
                     continue;
 
                 var _div = bodyNode.SelectSingleNode("ns:div", nsMgr);
+                if (_div == null)
+                    continue;
+                
                 //Parse <p> label
                 foreach (XmlElement _p in _div.SelectNodes("ns:p", nsMgr))
                 {
