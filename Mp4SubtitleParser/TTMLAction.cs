@@ -165,6 +165,7 @@ namespace Mp4SubtitleParser
             XmlNode headNode = null;
             XmlNamespaceManager nsMgr = null;
             var regex = new Regex("<p.*?>(.+?)<\\/p>");
+            var attrRegex = new Regex(" \\w+:\\w+=\\\"[^\\\"]*\\\"");
             foreach (var item in xmls)
             {
                 var xmlContent = item;
@@ -178,7 +179,12 @@ namespace Mp4SubtitleParser
                     {
                         try
                         {
-                            new XmlDocument().LoadXml($"<p>{m.Groups[1].Value}</p>");
+                            var inner = m.Groups[1].Value;
+                            if (attrRegex.IsMatch(inner))
+                            {
+                                inner = attrRegex.Replace(inner, "");
+                            }
+                            new XmlDocument().LoadXml($"<p>{inner}</p>");
                         }
                         catch (Exception)
                         {
@@ -202,9 +208,6 @@ namespace Mp4SubtitleParser
                     continue;
 
                 var _div = bodyNode.SelectSingleNode("ns:div", nsMgr);
-                if (_div == null)
-                    continue;
-                
                 //Parse <p> label
                 foreach (XmlElement _p in _div.SelectNodes("ns:p", nsMgr))
                 {
