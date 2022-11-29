@@ -85,6 +85,12 @@ namespace Mp4SubtitleParser
             {
                 var _begin = _p.GetAttribute("begin");
                 var _end = _p.GetAttribute("end");
+                //Handle namespace
+                foreach (XmlAttribute attr in _p.Attributes)
+                {
+                    if (attr.LocalName == "begin") _begin = attr.Value;
+                    else if (attr.LocalName == "end") _end = attr.Value;
+                }
                 _p.SetAttribute("begin", Add(_begin));
                 _p.SetAttribute("end", Add(_end));
                 //Console.WriteLine($"{_begin} {_p.GetAttribute("begin")}");
@@ -214,6 +220,13 @@ namespace Mp4SubtitleParser
                     var _begin = _p.GetAttribute("begin");
                     var _end = _p.GetAttribute("end");
                     var _region = _p.GetAttribute("region");
+                    //Handle namespace
+                    foreach (XmlAttribute attr in _p.Attributes)
+                    {
+                        if (attr.LocalName == "begin") _begin = attr.Value;
+                        else if (attr.LocalName == "end") _end = attr.Value;
+                        else if (attr.LocalName == "region") _region = attr.Value;
+                    }
                     var sub = new SubEntity
                     {
                         Begin = _begin,
